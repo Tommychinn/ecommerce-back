@@ -1,6 +1,8 @@
 const _ = require("lodash");
 const graphql = require("graphql");
 const Product = require("../models/products");
+const Size = require("../models/sizes");
+const Image = require("../models/images");
 
 const {
     GraphQLObjectType,
@@ -30,12 +32,21 @@ const ProductType = new GraphQLObjectType({
     }),
 });
 
+const ImageType = new GraphQLObjectType({
+    name: "Image",
+    fields: () => ({
+        image: { type: GraphQLString },
+        productId: { type: GraphQLString },
+    }),
+});
+
 const SizeType = new GraphQLObjectType({
     name: "Size",
     fields: () => ({
         size: { type: GraphQLString },
-        noStock: { type: GraphQLInt },
-        productId: { type: GraphQLString },
+        category: { type: GraphQLString },
+        // noStock: { type: GraphQLInt },
+        // productId: { type: GraphQLString },
     }),
 });
 
@@ -51,11 +62,40 @@ const RootQuery = new GraphQLObjectType({
             },
         },
 
+        products: {
+            type: new GraphQLList(ProductType),
+            resolve(parent, args) {
+                return Product.find({});
+            },
+        },
+
+        image: {
+            type: ImageType,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                return Image.findById(args.id);
+            },
+        },
+
+        images: {
+            type: new GraphQLList(ImageType),
+            resolve(parent, args) {
+                return Image.find({});
+            },
+        },
+
         size: {
             type: SizeType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 return SizeType.findById(args.id);
+            },
+        },
+
+        sizes: {
+            type: new GraphQLList(SizeType),
+            resolve(parent, args) {
+                return Size.find({});
             },
         },
     },
@@ -90,6 +130,34 @@ const Mutation = new GraphQLObjectType({
                     category: args.category,
                 });
                 return product.save();
+            },
+        },
+        addSize: {
+            type: SizeType,
+            args: {
+                size: { type: new GraphQLNonNull(GraphQLString) },
+                category: { type: new GraphQLNonNull(GraphQLString) },
+            },
+            resolve(parent, args) {
+                let siZe = new Size({
+                    size: args.size,
+                    category: args.category,
+                });
+                return siZe.save();
+            },
+        },
+        addImage: {
+            type: ImageType,
+            args: {
+                image: { type: new GraphQLNonNull(GraphQLString) },
+                productId: { type: GraphQLString },
+            },
+            resolve(parent, args) {
+                let imaGe = new Image({
+                    image: args.image,
+                    productId: args.productId,
+                });
+                return imaGe.save();
             },
         },
     },
