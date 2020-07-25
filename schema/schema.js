@@ -41,8 +41,30 @@ const ProductType = new GraphQLObjectType({
         availableInGeo: { type: GraphQLBoolean },
         noStock: { type: GraphQLInt },
         category: { type: GraphQLString },
+        images: {
+            type: GraphQLList(ImageType),
+            resolve(parent, args) {
+                return Image.find({ productId: parent.id });
+            },
+        },
     }),
 });
+
+// const AuthorType = new GraphQLObjectType({
+//     name: "Author",
+//     fields: () => ({
+//         id: { type: GraphQLID },
+//         name: { type: GraphQLString },
+//         age: { type: GraphQLInt },
+//         books: {
+//             type: GraphQLList(BookType),
+//             resolve(parent, args) {
+//                 // return _.filter(books, { authorId: parent.id });
+//                 return Book.find({ authorId: parent.id });
+//             },
+//         },
+//     }),
+// });
 
 const ImageType = new GraphQLObjectType({
     name: "Image",
