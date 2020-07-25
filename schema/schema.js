@@ -3,6 +3,8 @@ const graphql = require("graphql");
 const Product = require("../models/products");
 const Size = require("../models/sizes");
 const Image = require("../models/images");
+const Carousel = require("../models/carousel");
+const Client = require("../models/client");
 
 const {
     GraphQLObjectType,
@@ -15,6 +17,16 @@ const {
     GraphQLFloat,
     GraphQLNonNull,
 } = graphql;
+
+const ClientType = new GraphQLObjectType({
+    name: "Client",
+    fields: () => ({
+        id: { type: GraphQLID },
+        firstName: { type: GraphQLString },
+        lastName: { type: GraphQLString },
+        email: { type: GraphQLString },
+    }),
+});
 
 const ProductType = new GraphQLObjectType({
     name: "Product",
@@ -40,6 +52,17 @@ const ImageType = new GraphQLObjectType({
     }),
 });
 
+const CarouselType = new GraphQLObjectType({
+    name: "Carousel",
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        image1: { type: GraphQLString },
+        image2: { type: GraphQLString },
+        image3: { type: GraphQLString },
+    }),
+});
+
 const SizeType = new GraphQLObjectType({
     name: "Size",
     fields: () => ({
@@ -53,6 +76,21 @@ const SizeType = new GraphQLObjectType({
 const RootQuery = new GraphQLObjectType({
     name: "RootQuery",
     fields: {
+        client: {
+            type: ClientType,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                return Client.findById(args.id);
+            },
+        },
+
+        clients: {
+            type: new GraphQLList(ClientType),
+            resolve(parent, args) {
+                return Client.find({});
+            },
+        },
+
         product: {
             type: ProductType,
             args: { id: { type: GraphQLID } },
@@ -84,6 +122,23 @@ const RootQuery = new GraphQLObjectType({
             },
         },
 
+        carousel: {
+            type: CarouselType,
+            args: {
+                id: { type: GraphQLID },
+            },
+            resolve(parent, args) {
+                return Carousel.findById(args.id);
+            },
+        },
+
+        carousels: {
+            type: new GraphQLList(CarouselType),
+            resolve(parent, args) {
+                return Carousel.find({});
+            },
+        },
+
         size: {
             type: SizeType,
             args: { id: { type: GraphQLID } },
@@ -104,6 +159,23 @@ const RootQuery = new GraphQLObjectType({
 const Mutation = new GraphQLObjectType({
     name: "Mutation",
     fields: {
+        addClient: {
+            type: ClientType,
+            args: {
+                firstName: { type: new GraphQLNonNull(GraphQLString) },
+                lastName: { type: new GraphQLNonNull(GraphQLString) },
+                email: { type: new GraphQLNonNull(GraphQLString) },
+            },
+            resolve(parent, args) {
+                let client = new Client({
+                    firstName: args.firstName,
+                    lastName: args.lastName,
+                    email: args.email,
+                });
+                return client.save();
+            },
+        },
+
         addProduct: {
             type: ProductType,
             args: {
@@ -158,6 +230,24 @@ const Mutation = new GraphQLObjectType({
                     productId: args.productId,
                 });
                 return imaGe.save();
+            },
+        },
+        addCarousel: {
+            type: CarouselType,
+            args: {
+                name: { type: new GraphQLNonNull(GraphQLString) },
+                image1: { type: new GraphQLNonNull(GraphQLString) },
+                image2: { type: new GraphQLNonNull(GraphQLString) },
+                image3: { type: new GraphQLNonNull(GraphQLString) },
+            },
+            resolve(parent, args) {
+                let carousel = new Carousel({
+                    name: args.name,
+                    image1: args.image1,
+                    image2: args.image2,
+                    image3: args.image3,
+                });
+                return carousel.save();
             },
         },
     },
