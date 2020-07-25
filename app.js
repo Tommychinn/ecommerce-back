@@ -3,11 +3,11 @@ const app = express();
 const cors = require("cors");
 const schema = require("./schema/schema");
 const mongoose = require("mongoose");
-
 const { graphqlHTTP } = require("express-graphql");
+require("dotenv/config");
+const { USER, PASS, DB } = process.env;
 
-const uri =
-    "mongodb+srv://tommychinn:test1235@grapql-test.1olma.mongodb.net/ecommerce?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${USER}:${PASS}@grapql-test.1olma.mongodb.net/${DB}?retryWrites=true&w=majority`;
 
 mongoose.connect(uri, {
     useNewUrlParser: true,
